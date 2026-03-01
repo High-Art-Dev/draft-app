@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>High Art Draft App</title>
+	
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+  
+  /* Subtle cinematic grain overlay */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+
+    background-image: url("https://www.transparenttextures.com/patterns/asfalt-light.png");
+    opacity: 0.04;   /* VERY subtle */
+}
+    body {
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        margin: 0;
+        color: #e5e5e5;
+        line-height: 1.6;
+
+        /* Subtle dark gradient background */
+        background: radial-gradient(circle at top left, #1a1a1d 0%, #0f0f10 60%),
+                    radial-gradient(circle at bottom right, #1c1c1f 0%, #0f0f10 70%);
+        background-attachment: fixed;
+		
+		 position: relative;   /* ← ADD THIS LINE */
+    }
+
+    h1 {
+        text-align: center;
+        padding: 24px;
+        margin: 0;
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+
+        /* Glass header */
+        background: rgba(28, 28, 31, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 28px;
+        padding: 28px;
+    }
+	
+	.container, h1 {
+    position: relative;
+    z-index: 1;
+	}
+
+    /* Frosted Glass Cards */
+    .card {
+        background: rgba(28, 28, 31, 0.55);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+
+        padding: 24px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.05);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    }
+
+    input, textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 8px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(15,15,16,0.7);
+        color: #e5e5e5;
+        font-size: 14px;
+    }
+
+    input:focus, textarea:focus {
+        outline: none;
+        border-color: rgba(255,255,255,0.2);
+        box-shadow: 0 0 0 2px rgba(255,255,255,0.08);
+    }
+
+    button {
+        padding: 10px 14px;
+        margin-top: 8px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(42,42,46,0.8);
+        color: white;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.25s ease;
+    }
+
+    button:hover {
+        background: rgba(60,60,65,0.9);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+    }
+
+    .team-item {
+        padding: 8px;
+        margin-bottom: 6px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .claimed {
+        color: #ff6b6b;
+        font-weight: 600;
+        margin-left: 8px;
+    }
+
+    .current-turn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 8px;
+    font-weight: bold;
+    color: #ffffff;
+
+    box-shadow: 
+        0 0 12px rgba(255,255,255,0.15),
+        0 0 24px rgba(255,255,255,0.05);
+	}
+
+    .chat-box {
+        max-height: 250px;
+        overflow-y: auto;
+        background: rgba(15,15,16,0.6);
+        backdrop-filter: blur(10px);
+        padding: 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.05);
+        margin-bottom: 10px;
+    }
+
+    .timer {
+        font-size: 26px;
+        font-weight: bold;
+        color: #d4d4d4;
+        text-align: center;
+        margin-bottom: 14px;
+        letter-spacing: 1px;
+    }
+
+    #commissionerPanel {
+        display: none;
+        margin-top: 18px;
+        padding: 18px;
+        background: rgba(15,15,16,0.6);
+        backdrop-filter: blur(10px);
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+	
+	
+    @media (max-width: 900px) {
+        .container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+</head>
+
+
+<body>
+
+<h1 style="font-size:32px; letter-spacing:1px;">
+    ⚔️ High Art Draft Center
+</h1>
+ 
+<div class="container">
+
+<div class="card">
+
+<h3>Setup Draft</h3>
+
+<label>Teams (one per line)</label>
+<textarea id="teamsInput" rows="5"></textarea>
+
+<label>Characters (one per line)</label>
+<textarea id="charactersInput" rows="5"></textarea>
+
+<button onclick="setupDraft()">Start Draft</button>
+
+<hr>
+
+<h3>Teams</h3>
+<div id="teamsList"></div>
+
+<hr>
+
+<h3>Draft Status</h3>
+<div>Round: <span id="round">-</span></div>
+<div>Current Team: <span id="currentTeam">-</span></div>
+<div class="timer">Time Left: <span id="timer">-</span></div>
+
+<hr>
+
+<h3>Available Characters</h3>
+<div id="charactersList"></div>
+
+<hr>
+
+<h3>Commissioner Panel</h3>
+<div id="commissionerPanel">
+    <button onclick="pauseDraft()">Pause</button>
+    <button onclick="resumeDraft()">Resume</button>
+    <button onclick="resetDraft()">Reset</button>
+
+    <h4>Force Pick</h4>
+    <select id="forcePickSelect"></select>
+    <button onclick="forcePick()">Force Pick</button>
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Draft Board</h3>
+<div id="draftBoard"></div>
+
+<hr>
+
+<h3>Chat</h3>
+<div class="chat-box" id="chatBox"></div>
+
+<div style="display:flex; gap:5px;">
+    <input id="chatInput" placeholder="Type message...">
+    <button onclick="sendChat()">Send</button>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let myTeam = null;
+
+let roomCode = prompt("Enter Room Code:");
+let protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+let ws = new WebSocket(protocol + window.location.host + "/ws/" + roomCode);
+ws.onopen = () => {
+    console.log("WebSocket connected");
+};
+ws.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+
+    if (msg.type === "state") updateState(msg.data);
+    if (msg.type === "chat") updateChat(msg.data);
+};
+
+function setupDraft() {
+    console.log("Start Draft button clicked");
+
+    if (ws.readyState !== WebSocket.OPEN) {
+        alert("WebSocket not ready");
+        return;
+    }
+
+    let teams = document.getElementById("teamsInput").value
+        .split("\n")
+        .filter(t => t.trim() !== "");
+
+    let characters = document.getElementById("charactersInput").value
+        .split("\n")
+        .filter(c => c.trim() !== "");
+
+    console.log("Sending setup:", {
+        action: "setup",
+        teams: teams,
+        characters: characters
+    });
+
+    ws.send(JSON.stringify({
+        action: "setup",
+        teams: teams,
+        characters: characters
+    }));
+}
+
+function draftCharacter(name) {
+    ws.send(JSON.stringify({
+        action: "pick",
+        character: name
+    }));
+}
+
+function sendChat() {
+    const input = document.getElementById("chatInput");
+    if (!input.value.trim()) return;
+
+    ws.send(JSON.stringify({
+        action: "chat",
+        message: input.value
+    }));
+
+    input.value = "";
+}
+
+function claimTeam(team) {
+    myTeam = team;
+
+    ws.send(JSON.stringify({
+        action: "claim_team",
+        team: team
+    }));
+}
+
+function pauseDraft() {
+    ws.send(JSON.stringify({ action: "pause_draft" }));
+}
+
+function resumeDraft() {
+    ws.send(JSON.stringify({ action: "resume_draft" }));
+}
+
+function resetDraft() {
+    ws.send(JSON.stringify({ action: "reset_draft" }));
+}
+
+function forcePick() {
+    const select = document.getElementById("forcePickSelect");
+
+    ws.send(JSON.stringify({
+        action: "force_pick",
+        character: select.value
+    }));
+}
+
+function updateState(state) {
+
+    // Commissioner visibility
+    document.getElementById("commissionerPanel").style.display =
+        state.commissioner ? "block" : "none";
+
+    // Teams
+    const teamsDiv = document.getElementById("teamsList");
+    teamsDiv.innerHTML = "";
+
+    state.teams.forEach(team => {
+        const div = document.createElement("div");
+        div.className = "team-item";
+
+        if (team === state.current_team)
+            div.classList.add("current-turn");
+
+        if (state.team_owners.includes(team)) {
+            div.innerHTML = `<strong>${team}</strong> <span class="claimed">(CLAIMED)</span>`;
+        } else {
+            div.innerHTML =
+                `${team} <button onclick="claimTeam('${team}')">Claim</button>`;
+        }
+
+        teamsDiv.appendChild(div);
+    });
+
+    // Status
+    document.getElementById("round").innerText = state.round;
+    document.getElementById("currentTeam").innerText = state.current_team;
+    document.getElementById("timer").innerText = state.timer;
+
+    // Characters
+    const charDiv = document.getElementById("charactersList");
+    charDiv.innerHTML = "";
+
+    state.available_characters.forEach(char => {
+        const btn = document.createElement("button");
+        btn.innerText = char;
+
+        if (myTeam !== state.current_team)
+            btn.disabled = true;
+
+        btn.onclick = () => draftCharacter(char);
+        charDiv.appendChild(btn);
+    });
+
+    // Force pick dropdown
+    const select = document.getElementById("forcePickSelect");
+    select.innerHTML = "";
+    state.available_characters.forEach(char => {
+        const opt = document.createElement("option");
+        opt.value = char;
+        opt.text = char;
+        select.appendChild(opt);
+    });
+
+    // Draft board
+    const board = document.getElementById("draftBoard");
+    board.innerHTML = "";
+
+    for (let team in state.picks) {
+        const div = document.createElement("div");
+        div.innerHTML = `<strong>${team}</strong>: ${state.picks[team].join(", ")}`;
+        board.appendChild(div);
+    }
+}
+
+function updateChat(messages) {
+    const box = document.getElementById("chatBox");
+    box.innerHTML = "";
+    messages.forEach(msg => {
+        const div = document.createElement("div");
+        div.innerText = msg;
+        box.appendChild(div);
+    });
+}
+
+</script>
+
+</body>
+</html>
